@@ -1,6 +1,6 @@
 import express from 'express';
-import auth from './Routes/auth.routes';
-import tweets from './Routes/tweets.routes';
+import auth from './Routes/auth.routes.js';
+import tweets from './Routes/tweets.routes.js';
 import cors from 'cors'
 const app = express();
 
@@ -12,7 +12,7 @@ app.use(cors(
         credentials: true,
     }
 ))
-app.use('/auth', auth);
-app.use('/tweets', tweets);
+app.use('/api/auth', auth);
+app.use('/api/', tweets);
 
 export default app;

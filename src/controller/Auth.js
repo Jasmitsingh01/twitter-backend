@@ -1,7 +1,7 @@
-import User from '../models/user.model'
-import APIRESPONSE from '../utils/APIRESPONSE'
-import { AYSNCHANDLER } from '../utils/AYSNCHANDLER'
-import ERROR from '../utils/ERRORREPOSE'
+import User from '../models/user.model.js'
+import APIRESPONSE from '../utils/APIRESPONSE.js'
+import { AYSNCHANDLER } from '../utils/AYSNCHANDLER.js'
+import ERROR from '../utils/ERRORREPOSE.js'
 
 
 

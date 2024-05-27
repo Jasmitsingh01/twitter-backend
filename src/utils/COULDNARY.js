@@ -1,5 +1,5 @@
 import {v2 as cloudinary} from 'cloudinary';
-import ERROR from './ERRORREPOSE';  
+import ERROR from './ERRORREPOSE.js';  
 import dotenv from  'dotenv' 
 
 dotenv.config({

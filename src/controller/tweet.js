@@ -1,8 +1,8 @@
-import Tweet from "../models/tweet.model";
-import APIRESPONSE from "../utils/APIRESPONSE";
-import { AYSNCHANDLER } from "../utils/AYSNCHANDLER";
-import UploadToCloud from "../utils/COULDNARY";
-import ERROR from "../utils/ERRORREPOSE";
+import Tweet from "../models/tweet.model.js";
+import APIRESPONSE from "../utils/APIRESPONSE.js";
+import { AYSNCHANDLER } from "../utils/AYSNCHANDLER.js";
+import UploadToCloud from "../utils/COULDNARY.js";
+import ERROR from "../utils/ERRORREPOSE.js";
 
 
 const getTweets = AYSNCHANDLER(async ( req , res , next ) =>{
