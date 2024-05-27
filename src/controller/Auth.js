@@ -29,18 +29,21 @@ const login =AYSNCHANDLER(async (req, res, next) => {
 
 const register=AYSNCHANDLER(async(req, res, next)=>{
     try {
-        const { username, password,name,email } = req.body
-        if (!username ||!password ||!name ||!email) throw new ERROR("Please fill all fields",400)
-        const user = new User.create({ username, password,name, email  })
+        const { username, password,email } = req.body
+        if (!username ||!password |!email) throw new ERROR("Please fill all fields",400)
+        const user = new User({ username, password, email ,name: username})
         if (!user) throw new ERROR("Please try again",500)
         const accessToken = await user.genreateAccessToken()
         const refreshToken = await user.genreateRefreshToken()
         const Data=await user.save();
         if(!Data)throw new ERROR("Please try again",500)
-        new APIRESPONSE(201,"User created successfully",{accessToken:accessToken, refreshToken:refreshToken},res)
+    res.status(201).send(
+        new APIRESPONSE(201,"User created successfully",{accessToken:accessToken, refreshToken:refreshToken}))
     } catch (error) {
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
+        res.status(error.statusCode).send(
+            new APIRESPONSE(error.statusCode ,error.message || error )
+        )
     }
 })
 

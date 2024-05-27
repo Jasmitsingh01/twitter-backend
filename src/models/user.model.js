@@ -6,9 +6,9 @@ import jwt from 'jsonwebtoken'
 const userSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
     },
-    usename: {
+    username: {
         type: String,
         required: true,
         unique: true
@@ -63,25 +63,26 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 userSchema.methods.genreateAccessToken = async function () {
-    this.accessToken = await jwt.sign({
+    this.accessToken =  jwt.sign({
         id: this._id,
         name: this.name,
         username: this.username,
         email: this.email,
         avatar: this.avatar
-    }, process.env.ACCESS_TOKEN_SECRET, process.env.ACCESS_TOKEN_EXPIREY)
+    }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn:process.env.ACCESS_TOKEN_EXPIREY})
     return this.accessToken
 }
 
 
 userSchema.methods.genreateRefreshToken = async function () {
-    this.refreshToken = await jwt.sign({
+    this.refreshToken =  jwt.sign({
         id: this._id,
         name: this.name,
         username: this.username,
         email: this.email,
         avatar: this.avatar
-    }, process.env.REFRESH_TOKEN_SECRET, process.env.REFRESH_TOKEN_EXPIREY)
+    }, process.env.REFRESH_TOKEN_SECRET, {expiresIn:process.env.REFRESH_TOKEN_EXPIREY})
     return this.refreshToken
 }
 
