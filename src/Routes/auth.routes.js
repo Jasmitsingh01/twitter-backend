@@ -7,7 +7,7 @@ const auth= Router();
 
 auth.route('/login').post(login)
 auth.route('/register').post(register)
-auth.route('/:id').put(updateUser).get(verifyToken,getUserDetails)
+auth.route('/:id').put(verifyToken,updateUser).get(verifyToken,getUserDetails)
 auth.route('/uploadImage').post(verifyToken,upload.single('image'),uploadImage)
 
 auth.route('/logout').post(verifyToken,logout)

@@ -93,14 +93,16 @@ const register=AYSNCHANDLER(async(req, res, next)=>{
 
 const updateUser= AYSNCHANDLER(async(req,res,next )=>{
     try {
-        const {location,Dob,following,followers}=req.body
+        const {location,Dob,following,followers,name}=req.body
         if(!following && !followers && !Dob&&!location)throw new ERROR("Please provide at least one filed to update",400) 
-        const user=await User.findByIdAndUpdate(req._id,{location,Dob,following,followers},{new:true})
+        const user=await User.findByIdAndUpdate(req._id,{name:name,location:location,Dob:Dob,following:following,follwers:followers},{new:true})
         if(!user)throw new ERROR("Please try again",500)
-        new APIRESPONSE(202,"User updated successfully",user,res)
+        res.status(200).send(
+            new APIRESPONSE(200,"User updated successfully"))
     } catch (error) {
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode,error?.message))
     }
 })
 
@@ -108,7 +110,6 @@ const updateUser= AYSNCHANDLER(async(req,res,next )=>{
 const uploadImage=AYSNCHANDLER(async(req,res,next)=>{
     try {
         const {file}=req
-        console.log(req.file)
         if(!file)throw new ERROR("Please provide a file to upload",400);
         const ImageUrl = await UploadToCloud(file?.path);
         const user=await User.findByIdAndUpdate(req._id,{avatar:ImageUrl},{new:true})
@@ -125,7 +126,7 @@ const uploadImage=AYSNCHANDLER(async(req,res,next)=>{
 const getUserDetails =AYSNCHANDLER(async(req,res,next)=>{
     try {
         const {_id}=req;
-        const user=await User.findById(_id).select('-password').select('-accessToken').select('-refreshToken').select('-_id').select('-email')
+        const user=await User.findById(_id).select('-password').select('-accessToken').select('-refreshToken').select('-_id').select('-email').select('-updatedAt')
         if(!user) throw new ERROR("user not found",401)
         res.status(200).send(
             new APIRESPONSE(200,"User details",user)

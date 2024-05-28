@@ -7,11 +7,11 @@ const Tweets = new Schema({
     },
     TweetBy:{
         type:Types.ObjectId,
-        ref:'users'
+        ref:'user'
     },
     likeby:{
         type:[Types.ObjectId],
-        ref:'users'
+        ref:'user'
     },
     reply:{
         type:[Types.ObjectId],

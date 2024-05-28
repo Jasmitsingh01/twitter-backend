@@ -51,6 +51,8 @@ const userSchema = new Schema({
         type: String,
         required: true
     }
+},{
+    timestamps: true,
 })
 
 
@@ -85,6 +87,6 @@ userSchema.methods.genreateRefreshToken = async function () {
     return this.refreshToken
 }
 
-const User = model('users', userSchema)
+const User = model('user', userSchema)
 
 export default User;

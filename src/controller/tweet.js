@@ -7,15 +7,29 @@ import ERROR from "../utils/ERRORREPOSE.js";
 
 const getTweets = AYSNCHANDLER(async ( req , res , next ) =>{
     try {
-        const tweets = await Tweet.find().populate('user')
+        const tweets = await Tweet.find().populate({
+            path:'TweetBy',
+            select:'username name  avatar '
+        }).populate({
+            path:'likeby',
+            select:'-password -accessToken -refreshToken  -email -updatedAt'
+        })
+        .populate({
+            path:'reply',
+            select:'username name  avatar '        })
         if(!tweets) throw new ERROR("Tweets not found " ,501)
-        new APIRESPONSE(200,'Tweets successfully retrieved', tweets,res)
-
+     res.status(200).send(
+            new APIRESPONSE(200,"Tweets",tweets)
+        )
 
     } catch (error) {
 
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
+      
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode, error?.message, null)
+
+        )
         
     }
 })
@@ -30,72 +44,105 @@ const createTweet = AYSNCHANDLER(async ( req , res , next ) =>{
         const ImageUrl = await UploadToCloud(file?.path)
         const tweet = await Tweet.create({content,image:ImageUrl,TweetBy:req._id})
         if(!tweet) throw new ERROR("Tweets not found " ,501)
-        new APIRESPONSE(201,'Tweets successfully created', tweet,res)
-
+         res.status(201).send(
+            new APIRESPONSE(201,'Tweets successfully created','')
+        )
 
     } catch (error) {
 
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
-        
+    res.status(error?.statusCode).send(
+        new APIRESPONSE(error?.statusCode, error?.message, null)
+
+    )        
     }
 })
 const liked = AYSNCHANDLER(async(req, res, next)=>{
     try {
         const {id}=req.params
+        const{_id}=req;
         const tweet=await Tweet.findById(id)
         if(!tweet) throw new ERROR("Tweets not found " ,501)
+       if(tweet.likeby?.find((likeby)=>likeby==_id)){
+        tweet.likeby.pull(_id)
+       }
+       else{
         tweet.likeby.push(req._id)
-        tweet.save()
-        new APIRESPONSE(201,'Tweets successfully liked', tweet,res)
+
+       }
+         const data=await tweet.save()
+         if(!data) throw new ERROR("Tweets liked is not updated " ,501)
+        res.status(200).send(
+            new APIRESPONSE(200,'Tweets successfully liked')
+        )
+        
 
 
     } catch (error) {
 
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
-        
-    }
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode, error?.message, null)
+    
+        )        
+        }
 })
 
 
-const unliked = AYSNCHANDLER(async(req, res, next)=>{
-    try {
-        const {id}=req.params
-        const tweet=await Tweet.findById(id)
-        if(!tweet) throw new ERROR("Tweets not found " ,501)
-        tweet.likeby.pull(req._id)
-        tweet.save()
-        new APIRESPONSE(201,'Tweets successfully unliked', tweet,res)
-
-
-    } catch (error) {
-
-        console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
-        
-    }
-})
 
 const reply = AYSNCHANDLER(async(req, res, next)=>{
     try {
         const {id}=req.params
-        const tweet=await Tweet.findById(id)
-        if(!tweet) throw new ERROR("Tweets not found " ,501)
-        tweet.reply.push(id)
+        const{content}=req.body
+        if(!content) throw new ERROR("Please fill all fields",400)
+        
+         const tweet=await Tweet.findById(id)
+         if(!tweet) throw new ERROR("Tweets not found " ,501)
+        const newtweet = await Tweet({content: content,TweetBy:req._id})
+         if(!newtweet) throw new ERROR(" tweet not found", 400)
+         const created = await newtweet.save()
+         if(!created) throw new ERROR(" something went wrong", 500)    
+        
+        tweet.reply.push(newtweet._id)
+
         tweet.save()
-        new APIRESPONSE(201,'Tweets successfully replied', tweet,res)
+        res.status(200).send(
+            new APIRESPONSE(200,'Tweets successfully reply','')
+        )
 
 
     } catch (error) {
 
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode, error?.message, null)
+    
+        ) 
+        
+    }
+})
+
+const DeleteTweets=AYSNCHANDLER(async(req, res) => {
+    try {
+        const { id } = req.params;
+        const tweet =await Tweet.findById(id);
+        if(!tweet.TweetBy==req._id){
+            throw new ERROR('Permission denied',502)
+        }
+        const deleted = await Tweet.findByIdAndDelete(id);
+        if(!deleted) throw new ERROR('Tweets not found',400)
+            res.status(200).send(
+            new APIRESPONSE(200,'Tweets successfully deleted','')
+        )
+    } catch (error) {
+        console.error(error)
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode, error?.message, null)
+    
+        ) 
         
     }
 })
 
 
-
-
- export { reply , liked, unliked ,createTweet ,getTweets}
+ export { reply , liked ,createTweet ,getTweets,DeleteTweets}
