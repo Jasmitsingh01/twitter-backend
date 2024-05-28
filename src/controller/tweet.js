@@ -9,7 +9,7 @@ const getTweets = AYSNCHANDLER(async ( req , res , next ) =>{
     try {
         const tweets = await Tweet.find().populate({
             path:'TweetBy',
-            select:'username name  avatar '
+            select:'username name  avatar _id '
         }).populate({
             path:'likeby',
             select:'-password -accessToken -refreshToken  -email -updatedAt'
@@ -126,7 +126,8 @@ const DeleteTweets=AYSNCHANDLER(async(req, res) => {
     try {
         const { id } = req.params;
         const tweet =await Tweet.findById(id);
-        if(!tweet.TweetBy==req._id){
+        if(!tweet) throw new ERROR('Tweets not found',400)
+        if(!tweet?.TweetBy==req._id){
             throw new ERROR('Permission denied',502)
         }
         const deleted = await Tweet.findByIdAndDelete(id);
@@ -144,5 +145,32 @@ const DeleteTweets=AYSNCHANDLER(async(req, res) => {
     }
 })
 
+const allbyuser=AYSNCHANDLER(async(req, res, next)=>{
+    try {
+       const {id}=req.query;
+       if(id){
+        req._id=id;
+       }
+        const tweet=await Tweet.find({TweetBy:req._id}).populate({
+            path:'TweetBy',
+            select:'username name  avatar '
+        }).populate({
+            path:'likeby',
+            select:'-password -accessToken -refreshToken  -email -updatedAt'
+        })
+        if(!tweet) throw new ERROR("Tweets not found " ,501)
+        res.status(200).send(
+            new APIRESPONSE(200,"Tweets",tweet)
+        )
 
- export { reply , liked ,createTweet ,getTweets,DeleteTweets}
+    } catch (error) {
+
+        console.error(error)
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode, error?.message, null)
+    
+        )        
+    }
+})
+
+ export { reply , liked ,createTweet ,getTweets,DeleteTweets,allbyuser}

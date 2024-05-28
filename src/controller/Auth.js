@@ -36,7 +36,7 @@ const login =AYSNCHANDLER(async (req, res, next) => {
 
     }
     res.cookie('accessToken',accessToken,option).cookie('refreshToken',refreshToken,option2).status(200).send(
-        new APIRESPONSE(200,"Authentication successfuly",{accessToken:accessToken, refreshToken:refreshToken})
+        new APIRESPONSE(200,"Authentication successfuly",{accessToken:accessToken, refreshToken:refreshToken,avatar:user.avatar,name:user.name,username:user.username})
     )
 
 
@@ -82,7 +82,7 @@ const register=AYSNCHANDLER(async(req, res, next)=>{
         
             }
     res.status(201).cookie('accessToken',accessToken,option).cookie('refreshToken',refreshToken,option2).send(
-        new APIRESPONSE(201,"User created successfully",{accessToken:accessToken, refreshToken:refreshToken}))
+        new APIRESPONSE(201,"User created successfully",{accessToken:accessToken, refreshToken:refreshToken,avatar:user.avatar,name:user.name,username:user.username}))
     } catch (error) {
         console.error(error)
         res.status(error.statusCode).send(
@@ -115,17 +115,23 @@ const uploadImage=AYSNCHANDLER(async(req,res,next)=>{
         const user=await User.findByIdAndUpdate(req._id,{avatar:ImageUrl},{new:true})
         if(!user)throw new ERROR("user not found",401)
         
-        new APIRESPONSE(202,"User updated successfully",user,res)
+            res.status(202).send(
+                new APIRESPONSE(202,"User updated successfully"))
     } catch (error) {
         console.error(error)
-        new APIRESPONSE(error?.statusCode, error?.message, null,res)
-    }
+        res.status(error?.statusCode).send(
+            new APIRESPONSE(error?.statusCode,error?.message))
+    }    
 })
 
 
 const getUserDetails =AYSNCHANDLER(async(req,res,next)=>{
     try {
-        const {_id}=req;
+        let {_id}=req;
+        const {id}=req.query
+        if(id){
+            _id=id;
+        }
         const user=await User.findById(_id).select('-password').select('-accessToken').select('-refreshToken').select('-_id').select('-email').select('-updatedAt')
         if(!user) throw new ERROR("user not found",401)
         res.status(200).send(
