@@ -3,12 +3,12 @@ import ERROR from './ERRORREPOSE.js';
 import dotenv from  'dotenv' 
 
 dotenv.config({
-    path: "./config/*.env"
-})       
+    path:'../../.env'
+}) 
 cloudinary.config({ 
-  cloud_name: process.env.cloudName, 
-  api_key: process.env.cloudApikey, 
-  api_secret: process.env.cloudApiSercet 
+  cloud_name: 'ddhame7f7', 
+  api_key: '412458718625683', 
+  api_secret: 'gfFsXjRbd4GNRLQEX_Wy_8Pw8UY' 
 });
 
 const UploadToCloud= async (filePath)=>{

@@ -8,9 +8,9 @@ const verifyToken = AYSNCHANDLER( async (req, res , next) =>{
         const token = req?.cookies?.accessToken  || req?.headers?.authorization?.split(' ')[1]
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
         if(!decoded) throw new ERROR(' Persmission is denied',500)
-        const Finduser = await User.findById(decoded?._id);
+        const Finduser = await User.findById(decoded?.id);
         if(!Finduser) throw new ERROR('Please Create a account or login ',500)
-        req._id = decoded?._id
+        req._id = decoded?.id
         next()
     } catch (error) {
         next(error)

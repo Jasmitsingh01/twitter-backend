@@ -15,7 +15,8 @@ const userSchema = new Schema({
     },
     email: {
         type: String,
-        required: true, unique: true
+        required: true, 
+        unique: true
 
     },
     password: {
@@ -40,7 +41,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        default: 'https://www.google.com/imgres?q=user%20icon&imgurl=https%3A%2F%2Fthumbs.dreamstime.com%2Fb%2Fdefault-avatar-profile-icon-vector-social-media-user-image-182145777.jpg&imgrefurl=https%3A%2F%2Fwww.dreamstime.com%2Fillustration%2Ficon-user.html&docid=tlvJVigiFVdDeM&tbnid=XWg4py6RDWlHNM&vet=12ahUKEwjN8rCvtKuGAxVVzjgGHbygBa8QM3oECHwQAA..i&w=800&h=800&hcb=2&ved=2ahUKEwjN8rCvtKuGAxVVzjgGHbygBa8QM3oECHwQAA'
+        default:'https://res.cloudinary.com/ddhame7f7/image/upload/v1716891089/wbk2ntprmhzkmksxvqfa.webp'
     },
     accessToken: {
         type: String,
@@ -53,11 +54,9 @@ const userSchema = new Schema({
 })
 
 
-userSchema.on('save', async function () {
-    if (!this.isModified('password')) return;
+userSchema.pre('save',async function (){
     this.password = await bcrypt.hash(this.password, 10)
 })
-
 
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password)
